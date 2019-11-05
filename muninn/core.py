@@ -54,3 +54,4 @@ class Core(Mapping):
     creation_date = optional(Timestamp)
     footprint = optional(Geometry)
     remote_url = optional(Remote)
+#    logical_name = optional(Text)  # TODO

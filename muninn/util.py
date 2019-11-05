@@ -282,7 +282,7 @@ def find_paths(root, **kwargs):
 def hash_string(string, hash_func=hashlib.sha1):
     hash = hash_func()
     hash.update(string)
-    return hash.hexdigest()
+    return hash.hexdigest().encode()  # TODO
 
 
 def hash_file(path, block_size=65536, hash_func=hashlib.sha1):
@@ -327,7 +327,7 @@ def product_hash(roots, resolve_root=True, resolve_links=False, force_encapsulat
                 else:
                     hash.update("f")
 
-                hash.update(_product_hash_rec(path, False, resolve_links, hash_func, block_size))
+                hash.update(_product_hash_rec(path, False, resolve_links, hash_func, block_size).encode())
 
             return hash.hexdigest()
 
@@ -342,16 +342,19 @@ def product_hash(roots, resolve_root=True, resolve_links=False, force_encapsulat
 
     hash = hash_func()
     for root in sorted(roots):
+        if isinstance(root, str):  # TODO arghh
+            root = root.encode()
+
         hash.update(hash_string(os.path.basename(root)))
 
         if os.path.islink(root) and not (resolve_root or resolve_links):
-            hash.update("l")
+            hash.update(b"l")
         elif os.path.isdir(root):
-            hash.update("d")
+            hash.update(b"d")
         else:
-            hash.update("f")
+            hash.update(b"f")
 
-        hash.update(_product_hash_rec(root, resolve_root, resolve_links, hash_func, block_size))
+        hash.update(_product_hash_rec(root, resolve_root, resolve_links, hash_func, block_size).encode())
 
     return hash.hexdigest()
 
